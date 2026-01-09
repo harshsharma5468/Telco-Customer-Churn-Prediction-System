@@ -1,0 +1,18 @@
+flowchart TD
+    A[Raw CSV] -->|ingest| B[Cleaning]
+    B --> C[Feature Engineering]
+    C --> D[Pre‑processor (OHE + Scaling)]
+    D --> E[Train/Test Split]
+    E -->|save| F[Parquet files]
+    subgraph Model Stage
+        G[Logistic Regression]
+        H[Random Forest]
+        I[XGBoost]
+        G -->|train| J[Model Artifacts]
+        H -->|train| J
+        I -->|train| J
+    end
+    F --> G
+    F --> H
+    F --> I
+    J --> K[Streamlit App (inference)]

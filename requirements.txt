@@ -1,0 +1,21 @@
+# Data Handling
+pandas
+numpy
+pyarrow
+openpyxl
+
+# Machine Learning
+scikit-learn
+xgboost
+joblib
+
+# Visualization & UI
+matplotlib
+seaborn
+streamlit
+
+# Testing & Development
+pytest
+jupyter
+nbconvert
+ipykernel

@@ -1,0 +1,48 @@
+# Byte‑compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.env/
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Jupyter checkpoints
+.ipynb_checkpoints
+
+# Data folders – keep the structure but not the heavy files
+data/raw/*
+!data/raw/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Model artefacts
+models/
+!models/.gitkeep
+
+# Streamlit secrets (never commit)
+.secret/
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,10 @@
+services:
+  churn_app:
+    build: .
+    container_name: telco_churn_system
+    ports:
+      - "8501:8501"
+    volumes:
+      - .:/app  # This maps your entire project (including data/) into the container
+    environment:
+      - PYTHONPATH=/app

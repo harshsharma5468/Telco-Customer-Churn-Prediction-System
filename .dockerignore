@@ -1,0 +1,30 @@
+# Python cache
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual envs
+.venv
+venv
+ENV
+env
+
+# Data (Allow raw, ignore generated)
+data/raw/*
+!data/raw/Telco_customer_churn.xlsx
+data/interim/*
+data/processed/*
+
+# Model artefacts
+models/*
+
+# Logs
+logs/*
+
+# Jupyter checkpoints
+.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
