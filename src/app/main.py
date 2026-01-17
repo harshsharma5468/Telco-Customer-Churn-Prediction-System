@@ -1,11 +1,6 @@
 """
-
-Features:
-- Modern UI with tabs and sections
-- Batch prediction support
-- Feature importance visualization
-- Risk assessment with recommendations
-- Model performance metrics display
+Enhanced Streamlit application for Telco Customer Churn prediction.
+Complete production-ready version with auto-training on deployment.
 """
 
 import sys
@@ -16,6 +11,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 from datetime import datetime
+import subprocess
 
 # ------------------------------------------------------------------
 # Fix PYTHONPATH so `src.*` imports work when running locally
@@ -24,6 +20,83 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.append(str(ROOT))
 
+
+# =====================================================================
+# AUTO-TRAINING ON FIRST RUN (for Streamlit Cloud deployment)
+# =====================================================================
+
+@st.cache_resource
+def ensure_models_exist():
+    """
+    Ensure models are trained. If not, train them automatically.
+    This runs once when the app starts (cached).
+    """
+    model_dir = ROOT / "models"
+    model_files = list(model_dir.glob("*.pkl"))
+    
+    if not model_files:
+        st.warning("🔄 No trained models found. Training models now...")
+        st.info("⏱️ This will take 2-3 minutes on first deployment. Please wait...")
+        
+        with st.spinner("Training machine learning models..."):
+            try:
+                # Ensure data directory exists
+                data_dir = ROOT / "data" / "processed"
+                data_dir.mkdir(parents=True, exist_ok=True)
+                
+                # Check if processed data exists
+                if not (data_dir / "X_train.parquet").exists():
+                    st.info("📊 Step 1/2: Processing data...")
+                    result = subprocess.run(
+                        [sys.executable, "-m", "src.data.preprocess_and_save"],
+                        cwd=ROOT,
+                        capture_output=True,
+                        text=True,
+                        timeout=300  # 5 minute timeout
+                    )
+                    
+                    if result.returncode != 0:
+                        st.error(f"❌ Data processing failed:\n{result.stderr}")
+                        st.stop()
+                
+                # Train models
+                st.info("🤖 Step 2/2: Training models...")
+                result = subprocess.run(
+                    [sys.executable, "-m", "src.models.train"],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                    timeout=600  # 10 minute timeout
+                )
+                
+                if result.returncode != 0:
+                    st.error(f"❌ Model training failed:\n{result.stderr}")
+                    st.stop()
+                
+                st.success("✅ Models trained successfully!")
+                st.balloons()
+                
+                # Verify models were created
+                model_files = list(model_dir.glob("*.pkl"))
+                if not model_files:
+                    st.error("❌ Training completed but no model files found!")
+                    st.stop()
+                    
+            except subprocess.TimeoutExpired:
+                st.error("❌ Training timed out. Please try again or contact support.")
+                st.stop()
+            except Exception as e:
+                st.error(f"❌ Error during training: {str(e)}")
+                st.exception(e)
+                st.stop()
+    
+    return True
+
+
+# Call this before importing predict module
+models_ready = ensure_models_exist()
+
+# Now safe to import
 from src.models.predict import predict_churn
 
 
