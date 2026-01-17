@@ -22,6 +22,48 @@ if str(ROOT) not in sys.path:
 
 
 # =====================================================================
+# AUTO-DOWNLOAD DATASET IF MISSING
+# =====================================================================
+
+@st.cache_resource
+def ensure_dataset_exists():
+    """Download dataset if not present."""
+    data_file = ROOT / "data/raw/WA_Fn-UseC_-Telco-Customer-Churn.csv"
+    
+    if not data_file.exists():
+        st.info("📥 Downloading dataset...")
+        
+        try:
+            import urllib.request
+            
+            # Create directory
+            data_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            # Download from Kaggle mirror or GitHub
+            url = "https://raw.githubusercontent.com/IBM/telco-customer-churn-on-icp4d/master/data/Telco-Customer-Churn.csv"
+            
+            with st.spinner("Downloading Telco Customer Churn dataset..."):
+                urllib.request.urlretrieve(url, data_file)
+            
+            st.success("✅ Dataset downloaded successfully!")
+            
+        except Exception as e:
+            st.error(f"❌ Failed to download dataset: {str(e)}")
+            st.info("""
+            **Manual Solution:**
+            1. Download from: https://www.kaggle.com/datasets/blastchar/telco-customer-churn
+            2. Upload `WA_Fn-UseC_-Telco-Customer-Churn.csv` to your repository in `data/raw/`
+            """)
+            st.stop()
+    
+    return True
+
+
+# Ensure dataset exists before training
+dataset_ready = ensure_dataset_exists()
+
+
+# =====================================================================
 # AUTO-TRAINING ON FIRST RUN (for Streamlit Cloud deployment)
 # =====================================================================
 
@@ -92,6 +134,9 @@ def ensure_models_exist():
     
     return True
 
+
+# Ensure dataset exists before training
+dataset_ready = ensure_dataset_exists()
 
 # Call this before importing predict module
 models_ready = ensure_models_exist()
